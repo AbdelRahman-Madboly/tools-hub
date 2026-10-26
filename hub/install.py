@@ -69,7 +69,8 @@ def main() -> int:
         if (art / f"{art_name}.png").exists():
             icons.set_folder_icon(folder, art / f"{art_name}.png")
 
-    uv = shutil.which("uv") or str(HOME / ".local" / "bin" / "uv")
+    local = HOME / ".local" / "bin" / "uv"           # never a tool shim from the shell running the install
+    uv = str(local) if local.exists() else (shutil.which("uv") or "uv")
     entry = HUB_ENTRY.format(uv=uv, root=ROOT)
     for target in (MENU / "tools-hub.desktop", DESKTOP / "tools-hub.desktop"):
         target.write_text(entry)
