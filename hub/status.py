@@ -10,6 +10,7 @@ from pathlib import Path
 
 GB = 1024 ** 3
 STALE_SECONDS = 2 * 86400
+LEVELS = ("ok", "warn", "fail", "off", "stale", "unknown")
 
 
 @dataclass(frozen=True)
@@ -35,10 +36,16 @@ def read_summary(shared: Path, tool_id: str) -> Status:
         d = json.loads(f.read_text())
     except (OSError, ValueError):
         return Status("unknown", "No summary yet. Open the tool once.")
-    age = time.time() - float(d.get("updated", 0))
+    try:
+        age = time.time() - float(d.get("updated", 0))
+        headline = str(d.get("headline", ""))
+        details = [str(x) for x in d.get("details", [])]
+    except (AttributeError, TypeError, ValueError):      # another tool wrote something else than a summary
+        return Status("unknown", "Summary file is not readable", [str(f)])
     if age > STALE_SECONDS:
-        return Status("stale", d.get("headline", ""), [f"Not updated for {age / 86400:.0f} days"] + d.get("details", []))
-    return Status(d.get("level", "ok"), d.get("headline", ""), list(d.get("details", [])))
+        return Status("stale", headline, [f"Not updated for {age / 86400:.0f} days"] + details)
+    level = d.get("level", "ok")
+    return Status(level if level in LEVELS else "unknown", headline, details)
 
 
 def netusage(shared: Path, runner=subprocess.run) -> Status:
