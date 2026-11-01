@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QApplication
 from hub import app, collect, registry, status
 
 ROOT = Path(__file__).resolve().parent.parent
+_APP = None
 
 
 def _reg(tmp_path):
@@ -30,19 +31,24 @@ def test_every_tool_gets_a_status_and_the_hub_publishes_the_ones_it_found(tmp_pa
     reg = _reg(tmp_path)
     got = collect.every(reg, _deps(tmp_path))
     assert set(got) == {t.id for t in reg.tools}
-    assert got["laptop-doctor"].headline == "Health 94/100"
-    assert (reg.shared_dir / "laptop-doctor.json").exists() and (reg.shared_dir / "web-dashboard.json").exists()
+    assert got["web-dashboard"].headline == "Running"
+    assert (reg.shared_dir / "web-dashboard.json").exists() and (reg.shared_dir / "photo-sorter.json").exists()
     assert got["budget-notes"].level == "unknown"          # it publishes itself; none in this temp folder
 
 
 def test_window_shows_a_card_per_tool_and_opens_them(tmp_path):
-    QApplication.instance() or QApplication([])
+    global _APP
+    _APP = QApplication.instance() or QApplication([])   # keep a reference: Qt must outlive the window
     launched = []
     w = app.HubWindow(_reg(tmp_path), ROOT, launcher=lambda argv: launched.append(argv))
     w.show_statuses(collect.every(w.reg, _deps(tmp_path)))
-    assert len(w.cards) == 11
-    card = w.cards["laptop-doctor"]
-    assert "Health 94/100" in card.headline.text()
+    assert set(w.cards) == {t.id for t in w.reg.tools}
+    card = w.cards["web-dashboard"]
+    assert "Running" in card.headline.text()
     card.btn_open.click()
     card.btn_backlog.click()
-    assert launched[0][-1] == "gui" and launched[1] == ["xdg-open", str(ROOT / "backlogs" / "laptop-doctor.md")]
+    assert launched[0] == w.reg.get("web-dashboard").open
+    assert launched[1] == ["xdg-open", str(ROOT / "backlogs" / "web-dashboard.md")]
+    w.close()
+    w.deleteLater()
+    _APP.processEvents()

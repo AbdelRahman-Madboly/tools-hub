@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- The registry is now an example with three made-up tools, with an example backlog each; the registry
+  tests no longer expect a fixed number of tools or existing tool folders.
+- MIT license, CI workflow that runs the tests on every push, README for a fresh install.
+
 ## 1.0.0 - 2026-11-01
 
 - Registry of every tool in `tools.json`, TOOLS.md generated from it, one backlog per tool.

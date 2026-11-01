@@ -1,0 +1,39 @@
+{
+  "shared_dir": "~/My-Tools/shared-data",
+  "tools": [
+    {
+      "id": "budget-notes",
+      "name": "Budget Notes",
+      "group": "Money",
+      "what": "Example: monthly budget notes that publish a one-line summary for the Hub",
+      "path": "~/My-Tools/budget-notes",
+      "open": ["xdg-open", "~/My-Tools/budget-notes"],
+      "desktop": null,
+      "repo": "local only",
+      "status": "summary"
+    },
+    {
+      "id": "web-dashboard",
+      "name": "Web Dashboard",
+      "group": "Web",
+      "what": "Example: a small local web page; the Hub checks that it answers",
+      "path": "~/My-Tools/web-dashboard",
+      "open": ["xdg-open", "http://127.0.0.1:8000/"],
+      "desktop": null,
+      "repo": "local only",
+      "status": "web",
+      "url": "http://127.0.0.1:8000/health"
+    },
+    {
+      "id": "photo-sorter",
+      "name": "Photo Sorter",
+      "group": "Files",
+      "what": "Example: sorts camera photos into dated folders; status is its last commit",
+      "path": "~/My-Tools/photo-sorter",
+      "open": ["xdg-open", "~/My-Tools/photo-sorter"],
+      "desktop": null,
+      "repo": "local only",
+      "status": "git"
+    }
+  ]
+}
