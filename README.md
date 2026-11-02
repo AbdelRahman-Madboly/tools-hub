@@ -1,43 +1,61 @@
+<div align="center">
+
+<img src="docs/readme-icon.png" width="110" alt="Tools Hub icon">
+
 # Tools Hub
 
-<img src="docs/readme-icon.png" width="96" align="right" alt="Tools Hub icon">
+**One window for a folder of small personal tools: a card per tool with a one-line status, and buttons to open the tool, its folder or its backlog.**
 
-One window for a folder of small personal tools: a card per tool with a one-line status, and buttons to
-open the tool, its folder or its backlog. The tools are listed in a registry file, `tools.json`.
+[![CI](https://github.com/AbdelRahman-Madboly/tools-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdelRahman-Madboly/tools-hub/actions/workflows/ci.yml)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Ubuntu-E95420?logo=ubuntu&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)
+![PySide6](https://img.shields.io/badge/UI-PySide6-41CD52?logo=qt&logoColor=white)
+![Desktop](https://img.shields.io/badge/desktop-GNOME--style-4A86CF?logo=gnome&logoColor=white)
+
+[How it works](#how-it-works) · [Install](#install) · [Run](#run) · [Status probes](#status-probes) · [What it does not do](#what-it-does-not-do)
+
+</div>
+
+## Why Tools Hub
+
+A folder of small personal tools grows quietly: each one has its own launcher, its own way of
+saying whether it is healthy, and its own list of things to do next. Tools Hub lists them in one
+registry file, `tools.json`, and shows them all in one window with a status line each.
+
+## Highlights
+
+- **One registry.** `tools.json` holds each tool's id, name, group, folder, how to open it, repo, and
+  how to find its status.
+- **A card per tool.** Grouped, with a coloured status dot (ok, warn, fail, off, stale, unknown).
+- **Six ways to find a status.** The tool's own summary file, an HTTP check, file times, git, a
+  `netusage` command or a machine health history, read in the background at start and every 10
+  minutes.
+- **Probes stay isolated.** One failing probe never hides the others.
+- **A shared status folder.** It publishes what it found for tools that do not publish themselves,
+  so other tools can read it too.
+- **Generated overview.** Writes `TOOLS.md` (an overview of every tool) next to the `tools-hub`
+  folder each time it starts.
+
+## How it works
+
+```mermaid
+flowchart LR
+    R["tools.json<br/>registry"] --> C["Background collector<br/>at start, every 10 min"]
+    C --> P{"status kind"}
+    P -- summary --> S["shared_dir/id.json"]
+    P -- "web, files, git,<br/>netusage, doctor" --> Q["Probe"]
+    Q -- publish --> S
+    S --> W["PySide6 window<br/>card per tool"]
+    Q --> W
+    R --> T["TOOLS.md"]
+```
 
 ## Status
 
 1.0.0. Used daily on Ubuntu with a private registry. This repository ships an example registry with three
 made-up tools; replace it with your own. The tests run in CI on every push.
-
-## What it does
-
-- Reads the registry `tools.json`: id, name, group, folder, how to open it, repo, and how to find its status.
-- Shows one card per tool, grouped, with a coloured status dot (ok, warn, fail, off, stale, unknown).
-- Finds each status in the background, at start and every 10 minutes:
-
-  | `status` in tools.json | Where the line comes from |
-  |---|---|
-  | `summary` | The tool's own `<shared_dir>/<id>.json`; older than 2 days is marked stale |
-  | `web` | An HTTP check of the tool's `url`; a local server that is down shows as off |
-  | `files` | The newest file time under the listed `files`, or the tool's folder |
-  | `git` | The last commit of the tool's folder, and whether it has uncommitted changes |
-  | `netusage` | `netusage bill --json`, for a home internet usage tool with that command |
-  | `doctor` | The last line of `~/.config/laptop-doctor/history.jsonl`, for a machine health tool |
-
-- Publishes what it found for tools that do not publish themselves, so other tools can read it from the
-  shared folder too.
-- Writes `TOOLS.md` (an overview of every tool) next to the `tools-hub` folder each time it starts.
-- `hub.install` puts the icons in the icon theme, names and icons on the Desktop and menu launchers,
-  folder icons in Files, the Tools Hub launcher, and writes TOOLS.md. Safe to run again.
-
-## What it does not do
-
-- It does not run, update or fix the tools; it only opens them and reads their status.
-- It does not edit backlogs; the Backlog button opens `backlogs/<id>.md` in the default editor.
-- No notifications: a tool going to warn or fail shows only when the window is open.
-- A tool missing from `tools.json` does not appear. Add it there, then add `backlogs/<id>.md`.
-- Linux with a GNOME-style desktop only (`xdg-open`, `gio`, `.desktop` files).
 
 ## Install
 
@@ -45,7 +63,7 @@ Needs Python 3.12+ and [uv](https://docs.astral.sh/uv/). The hub expects to live
 for example `~/My-Tools/tools-hub`, with the shared summaries in `~/My-Tools/shared-data`.
 
 ```sh
-git clone <this repository> ~/My-Tools/tools-hub
+git clone https://github.com/AbdelRahman-Madboly/tools-hub.git ~/My-Tools/tools-hub
 cd ~/My-Tools/tools-hub
 uv sync
 ```
@@ -70,26 +88,40 @@ uv run --project ~/My-Tools/tools-hub python -m hub.install  # icons, launchers,
 
 The menu and Desktop entry `tools-hub.desktop` runs the first command.
 
-## Files
+`hub.install` puts the icons in the icon theme, names and icons on the Desktop and menu launchers,
+folder icons in Files, the Tools Hub launcher, and writes TOOLS.md. Safe to run again.
 
-| Path | What it is |
+## Status probes
+
+Each status is found in the background, at start and every 10 minutes:
+
+| `status` in tools.json | Where the line comes from |
 |---|---|
-| `tools.json` | The registry (an example here). Edit this, not TOOLS.md |
-| `backlogs/<id>.md` | One backlog per tool |
-| `hub/registry.py` | Loads the registry, writes TOOLS.md |
-| `hub/status.py` | The status probes and the shared summary format |
-| `hub/collect.py` | Runs the right probe per tool; one failing probe never hides the others |
-| `hub/app.py` | The PySide6 window |
-| `hub/install.py`, `hub/icons.py` | Icons and launchers |
-| `assets/icons/` | The hub's own icons; add one per tool |
+| `summary` | The tool's own `<shared_dir>/<id>.json`; older than 2 days is marked stale |
+| `web` | An HTTP check of the tool's `url`; a local server that is down shows as off |
+| `files` | The newest file time under the listed `files`, or the tool's folder |
+| `git` | The last commit of the tool's folder, and whether it has uncommitted changes |
+| `netusage` | `netusage bill --json`, for a home internet usage tool with that command |
+| `doctor` | The last line of `~/.config/laptop-doctor/history.jsonl`, for a machine health tool |
 
-The shared summary format, for a tool that wants to publish its own line:
+<details>
+<summary>Shared summary format, for a tool that wants to publish its own line</summary>
 
 ```json
 {"tool": "<id>", "updated": 1793548283.4, "level": "ok", "headline": "One line", "details": ["More"], "data": {}}
 ```
 
 `updated` is a Unix time in seconds; `level` is one of ok, warn, fail, off, stale, unknown.
+
+</details>
+
+## What it does not do
+
+- It does not run, update or fix the tools; it only opens them and reads their status.
+- It does not edit backlogs; the Backlog button opens `backlogs/<id>.md` in the default editor.
+- No notifications: a tool going to warn or fail shows only when the window is open.
+- A tool missing from `tools.json` does not appear. Add it there, then add `backlogs/<id>.md`.
+- Linux with a GNOME-style desktop only (`xdg-open`, `gio`, `.desktop` files).
 
 ## Develop
 
@@ -100,10 +132,23 @@ uv run python -m pytest -q
 Tests run Qt offscreen and never call the real `netusage`, network or git of other tools. They use the
 shipped `tools.json`, whatever number of tools it lists.
 
+## Files
+
+| Path | What it is |
+|---|---|
+| [`tools.json`](tools.json) | The registry (an example here). Edit this, not TOOLS.md |
+| [`backlogs/<id>.md`](backlogs/) | One backlog per tool |
+| `hub/registry.py` | Loads the registry, writes TOOLS.md |
+| `hub/status.py` | The status probes and the shared summary format |
+| `hub/collect.py` | Runs the right probe per tool; one failing probe never hides the others |
+| `hub/app.py` | The PySide6 window |
+| `hub/install.py`, `hub/icons.py` | Icons and launchers |
+| `assets/icons/` | The hub's own icons; add one per tool |
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
 
 ## Author
 
-Designed and built by Abdel Rahman Mohamad EL-Sayed ([AbdelRahman-Madboly](https://github.com/AbdelRahman-Madboly) on GitHub).
+Designed and built by **Abdel Rahman Mohamad EL-Sayed** ([@AbdelRahman-Madboly](https://github.com/AbdelRahman-Madboly)).
