@@ -1,5 +1,7 @@
 # Tools Hub
 
+<img src="docs/readme-icon.png" width="96" align="right" alt="Tools Hub icon">
+
 One window for a folder of small personal tools: a card per tool with a one-line status, and buttons to
 open the tool, its folder or its backlog. The tools are listed in a registry file, `tools.json`.
 
@@ -101,3 +103,7 @@ shipped `tools.json`, whatever number of tools it lists.
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+## Author
+
+Designed and built by Abdel Rahman Mohamad EL-Sayed ([AbdelRahman-Madboly](https://github.com/AbdelRahman-Madboly) on GitHub).
