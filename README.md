@@ -42,6 +42,10 @@ registry file, `tools.json`, and shows them all in one window with a status line
 - **Generated overview.** Writes `TOOLS.md` (an overview of every tool) next to the `tools-hub`
   folder each time it starts.
 
+<img src="docs/concept-desk.jpg" width="640" alt="tools-hub on a laptop">
+
+<sub>Concept image of the app on a laptop. The screen shows the real screenshot above.</sub>
+
 ## How it works
 
 ```mermaid
