@@ -16,6 +16,10 @@
 
 [How it works](#how-it-works) · [Install](#install) · [Run](#run) · [Status probes](#status-probes) · [What it does not do](#what-it-does-not-do)
 
+<img src="docs/screenshots/01-hub-example-registry.png" width="760" alt="tools-hub: The hub with the example registry">
+
+<sub>The example registry that ships with the repo. The letter icons were added for the screenshot.</sub>
+
 </div>
 
 ## Why Tools Hub
